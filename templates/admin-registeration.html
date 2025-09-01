@@ -1,63 +1,68 @@
 {% extends "admin.html" %}
 {% block title %}Register{% endblock title %}
 {% block content %}
-    <div class="container-fluid py-4">
-        <h4>Student Registeration</h4>
-        <div class="text-end">
-            <button onclick="setFalse()" type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Add Student
-            </button>
-        </div>
-        <table class="table my-4">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Active</th>
-                    <th>Last Login</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                {% if user.is_superuser == False %}
-                <tr>
-                    <td>{{user.username}}</td>
-                    <td>{{user.first_name}}</td>
-                    <td>{{user.last_name}}</td>
-                    <td>{{user.email}}</td>
-                    <td><span class="badge bg-success">{{user.is_active}}</span></td>
-                    <td>{{user.last_login}}</td>
-                    <td>
-                        <button onclick="userdata('{{user.username}}', '{{user.first_name}}', '{{user.last_name}}', '{{user.email}}', '{{user.password}}')" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</button>
-                        <form action="{% url 'delete' %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" value="{{user.pk}}" name="ID">
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr> 
-                {% endif %}
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="container-fluid py-4">
+    <h4>Student Registeration</h4>
+    <div class="text-end">
+        <button onclick="setFalse()" type="button" class="btn btn-dark" data-bs-toggle="modal"
+            data-bs-target="#exampleModal">
+            Add Student
+        </button>
     </div>
-    {% comment %} User Creation {% endcomment %}
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+    <table class="table my-4">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Active</th>
+                <th>Last Login</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            {% if user.is_superuser == False %}
+            <tr>
+                <td>{{user.username}}</td>
+                <td>{{user.first_name}}</td>
+                <td>{{user.last_name}}</td>
+                <td>{{user.email}}</td>
+                <td><span class="badge bg-success">{{user.is_active}}</span></td>
+                <td>{{user.last_login}}</td>
+                <td class="d-flex gap-2">
+                    <button
+                        onclick="userdata('{{user.pk}}', '{{user.username}}', '{{user.first_name}}', '{{user.last_name}}', '{{user.email}}', '{{user.password}}')"
+                        class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal"><i
+                            class="fa-solid fa-edit"></i></button>
+                    <form action="{% url 'delete' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{user.pk}}" name="ID">
+                        <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% comment %} User Creation {% endcomment %}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">Student Form</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post">
+            <form method="post" id="AddForm">
                 {% csrf_token %}
                 <div class="modal-body">
+                    <input type="hidden" name="user_id" class="form-control" id="user_id">
                     <div class="mb-3 d-none" id="username">
-                        <label for="exampleInputFirstName" class="form-label">Username</label>
-                        <input type="text" name="first_name" class="form-control" id="exampleInputusername">
+                        <label for="exampleInputusername" class="form-label">Username</label>
+                        <input type="text" name="username" class="form-control" id="exampleInputusername">
                     </div>
                     <div class="mb-3" id="firstname">
                         <label for="exampleInputFirstName" class="form-label">First Name</label>
@@ -69,7 +74,8 @@
                     </div>
                     <div class="mb-3" id="email">
                         <label for="exampleInputEmail1" class="form-label">Email address</label>
-                        <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" required>
+                        <input type="email" name="email" class="form-control" id="exampleInputEmail1"
+                            aria-describedby="emailHelp" required>
                         <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
                     </div>
                     <div class="mb-3" id="password">
@@ -82,38 +88,43 @@
                     <button type="submit" class="btn btn-success">Submit</button>
                 </div>
             </form>
-            </div>
         </div>
     </div>
-    <script>
-        let udiv = document.getElementById('username')
-        let uinp = document.getElementById('exampleInputusername')
-        let finp = document.getElementById('exampleInputFirstName')
-        let linp = document.getElementById('exampleInputLastName')
-        let einp = document.getElementById('exampleInputEmail1')
-        let pinp = document.getElementById('exampleInputPassword1')
-        let edit = false
-        function userdata(uname, fname, lname, email, pass){
-            edit = true
-            if (edit == true) {
-                udiv.classList.remove('d-none')
-                udiv.classList.add('d-block')
-                uinp.value = uname
-                finp.value = fname
-                linp.value = lname
-                einp.value = email
-                pinp.value = pass
-            }
+</div>
+<script>
+    let form = document.getElementById('AddForm')
+    let udiv = document.getElementById('username')
+    let uinp = document.getElementById('exampleInputusername')
+    let finp = document.getElementById('exampleInputFirstName')
+    let linp = document.getElementById('exampleInputLastName')
+    let einp = document.getElementById('exampleInputEmail1')
+    let pinp = document.getElementById('exampleInputPassword1')
+    let user_id = document.getElementById('user_id')
+    let edit = false
+    function userdata(uid, uname, fname, lname, email, pass) {
+        console.log(uid, uname, fname, lname, email, pass)
+        edit = true
+        form.setAttribute('action', edit ? "{% url 'update_user' %}" : "")
+        if (edit == true) {
+            udiv.classList.remove('d-none')
+            udiv.classList.add('d-block')
+            user_id.value = uid
+            uinp.value = uname
+            finp.value = fname
+            linp.value = lname
+            einp.value = email
+            pinp.value = pass
         }
-        function setFalse(){
-            uinp.value = ''
-            finp.value = ''
-            linp.value = ''
-            einp.value = ''
-            pinp.value = ''
-            udiv.classList.remove('d-block')
-            udiv.classList.add('d-none')
-            edit = false
-        }
-    </script>
+    }
+    function setFalse() {
+        uinp.value = ''
+        finp.value = ''
+        linp.value = ''
+        einp.value = ''
+        pinp.value = ''
+        udiv.classList.remove('d-block')
+        udiv.classList.add('d-none')
+        edit = false
+    }
+</script>
 {% endblock content %}

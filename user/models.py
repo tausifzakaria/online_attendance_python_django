@@ -11,7 +11,7 @@ class studentInfo(models.Model):
 
 
 class Attendance(models.Model):
-    studentInfo = models.ForeignKey(studentInfo, on_delete=models.CASCADE)
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField(auto_now=True)
     start_time = models.TimeField(auto_now=False)
-    end_time = models.TimeField(auto_now=False)
+    end_time = models.TimeField(auto_now=False, null=True, blank = True)

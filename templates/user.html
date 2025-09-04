@@ -9,6 +9,7 @@
     <h1>{{ request.user }} Welcome !</h1>
     <form action="{% url 'logout' %}" method="POST">
     {% csrf_token %}
+    <input type="hidden" name="user_id" value="{{request.user.pk}}">
     <button type="submit">logout</button>
 </form>
 </body>

@@ -3,11 +3,22 @@ from django.contrib.auth import authenticate, login as auth_login, logout as aut
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+import time
+from .models import Attendance
 def home(request):
     if request.user.is_superuser:
+        user_list = []
         users = User.objects.all()
+        for i in users:
+            try:
+                attendance = Attendance.objects.get(student__pk = i.pk)
+                merged_data = {'user': i, 'attendance': attendance}
+            except:
+                merged_data = {'user': i}
+            user_list.append(merged_data) 
         data = {
-            'users' : users
+            'users' : user_list,
+            'attendance' : attendance 
         }
         return render(request,'admin-dashboard.html' , context=data)
     else:
@@ -18,18 +29,30 @@ def login(request):
         username = request.POST.get('username') 
         password = request.POST.get('password') 
         user = authenticate(request, username = username , password = password)
-        print(username,password)
-        print(user)
         if user is not None:
             auth_login(request, user)
-            return redirect('home')
+            if user.is_superuser:
+                return redirect('home')
+            else:
+                att_user = user
+                time_now = time.strftime("%H:%M", time.localtime())
+                attendace = Attendance(student = att_user, start_time = time_now)
+                attendace.save()
+                return redirect('home')
         else:
             return HttpResponse("No user with this credential")
     return render(request,'login.html')
 
 def logout(request):
     if request.method == "POST":
-        auth_logout(request)
+        if request.user.is_superuser:
+            auth_logout(request)
+        else:
+            user = request.POST.get('user_id')
+            get_user = Attendance.objects.get(student__pk = user)
+            time_now = time.strftime("%H:%M", time.localtime())
+            get_user.end_time = time_now
+            get_user.save()
     return redirect('login')
  
 def register(request):
